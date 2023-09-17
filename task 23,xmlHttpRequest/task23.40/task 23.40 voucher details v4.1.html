@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title> task 23.40 </title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+  <div class="container jumbotron"> 
+      <div class="form-group">
+        <h3 class="text-center">Kiểm tra mã giảm giá</h3>
+      </div>
+
+      <div class="form-group">
+        <label for="input-voucher-code">Mã giảm giá</label>
+        <input type="email" id="input-voucher-code" name="voucher" class="form-control" aria-describedby="voucherHelp"
+          placeholder="Nhập mã giảm giá..">
+        <small id="voucherHelp" class="form-text text-muted">hãy nhập mã giảm giá để có thể tiết kiệm lên đến 70%.</small>
+      </div>
+      <div class="form-group">
+        <button onclick="onVoucherCheckClickV2()" class="btn btn-primary">Kiểm tra</button>
+      </div> 
+    <div id="p-result-check" style=" word-break: break-all;"></div>
+  </div>
+
+  <script>
+    "use strict";
+    /*** REGION 1 - Global variables - Vùng khai báo biến, hằng số, tham số TOÀN CỤC */
+    // trạng thái của server trả về, 200 = tìm thấy thành công!
+    const gREQUEST_STATUS_FINISH_AND_OK = 200;
+    
+    /*** REGION 2 - Vùng gán / thực thi sự kiện cho các elements */
+
+    /*** REGION 3 - Event handlers - Vùng khai báo các hàm xử lý sự kiện */
+    function onVoucherCheckClick() {
+      "use strict"
+      // lấy giá trị nhập trên form
+      var vElementVoucherCode = document.getElementById("input-voucher-code");
+      var vVoucherCode = vElementVoucherCode.value;
+      // tạo ra đối tượng request và gửi đi
+      var vXmlHttp = new XMLHttpRequest();
+      vXmlHttp.open("GET", "http://203.171.20.210:8080/devcamp-pizza365/voucher_detail/" + vVoucherCode, false);
+      vXmlHttp.send();
+      
+      // nhận về response và xử lý
+      var vResultCheckElement = document.getElementById("p-result-check");
+      var vStatusCode = vXmlHttp.status;
+      // nếu trạng thái trả về thành công!
+      if (vStatusCode == gREQUEST_STATUS_FINISH_AND_OK) {
+        // nhận lại response dạng JSON ở xmlHttp.responseText và chuyển thành object
+        var bVoucherResponse = JSON.parse(vXmlHttp.responseText);
+        vResultCheckElement.innerHTML = JSON.stringify(bVoucherResponse);
+      }
+      else {
+        vResultCheckElement.innerHTML = "Không tìm thấy mã giảm giá";
+      }
+    }
+    function onVoucherCheckClickV2 (){ debugger;
+      "use strict"
+      var vVoucherCode = {
+        voucherCode : ""
+      }
+      //fetchData
+      fetchData(vVoucherCode)
+      //validate data
+      var TFData = validateData(vVoucherCode)
+      if(TFData){
+          //initilize new API
+               //Call API
+        var XmlHttp = new XMLHttpRequest();
+        APIVoucher(vVoucherCode,XmlHttp);
+        //display
+        DisplayInformation(XmlHttp)
+      }
+    }
+    /*** REGION 4 - Common funtions - Vùng khai báo hàm dùng chung trong toàn bộ chương trình*/
+    function fetchData(paramVoucherObject){
+      var vINputVouchervalue=document.getElementById("input-voucher-code").value.trim()
+      paramVoucherObject.voucherCode = vINputVouchervalue
+    }
+    function validateData(paramVoucherObject){
+      if(paramVoucherObject.voucherCode === ""){
+        alert("Voucher chưa được điền")
+        return false;
+      }
+      return true;
+    }
+    function APIVoucher (pramVoucherCp,paramAPI){
+      paramAPI.open("GET", "http://203.171.20.210:8080/devcamp-pizza365/voucher_detail/" + pramVoucherCp.voucherCode, false);
+      paramAPI.send();
+    }
+    function DisplayInformation(paramAPI){
+      var vResultCheckElement = document.getElementById("p-result-check");
+      var vStatusCode = paramAPI.status;
+      // nếu trạng thái trả về thành công!
+      if (vStatusCode == gREQUEST_STATUS_FINISH_AND_OK) {
+        // nhận lại response dạng JSON ở xmlHttp.responseText và chuyển thành object
+        var bVoucherResponse = JSON.parse(paramAPI.responseText);
+        console.log(paramAPI.responseText)
+        console.log("Bạn được giảm tới "+bVoucherResponse.phanTramGiamGia+"%")
+        vResultCheckElement.innerHTML = "Bạn được giảm tới "+bVoucherResponse.phanTramGiamGia+"%"
+      }
+      else {
+        vResultCheckElement.innerHTML = "Không tìm thấy mã giảm giá";
+      }
+    }
+  </script>
+
+</body>
+
+</html>
